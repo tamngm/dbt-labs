@@ -41,6 +41,10 @@ models:
     staing:
       jaffle_shop:
         +materialized: view
+      stripe:
+        +materialized: view
     marts:
       marketing:
+        +materialized: table
+      finance:
         +materialized: table
