@@ -1,0 +1,40 @@
+version: 2
+
+sources:
+  - name: jaffle_shop_datasrc
+    database: dbt-tutorial
+    schema: jaffle_shop
+    freshness: 
+      error_after:
+        count: 12
+        period: hour
+      warn_after:
+        count: 24
+        period: hour
+    loaded_at_field: _etl_loaded_at
+    
+    tables:
+      - name: customers # this will use the freshness defined above
+        freshness: null
+        
+      - name: orders
+        config:
+          freshness: # make this a little more strict
+            warn_after: {count: 6, period: hour}
+            error_after: {count: 24, period: hour}
+            # Apply a where clause in the freshness query
+            filter: timestamp(_etl_loaded_at) >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 2 DAY)
+  - name: stripe_datasrc
+    database: dbt-tutorial
+    schema: stripe
+    tables:
+      - name: payment
+        freshness: # also setup freshness for payment
+          error_after:
+            count: 2
+            period: day
+          warn_after:
+            count: 1
+            period: day
+        loaded_at_field: _batched_at
+        

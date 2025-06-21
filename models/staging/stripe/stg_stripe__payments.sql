@@ -8,4 +8,5 @@ select
     amount / 100 as amount,
     created as created_at
 
-from `dbt-tutorial.stripe.payment`
+from {{ source("stripe_datasrc", "payment")}}
+-- from `dbt-tutorial.stripe.payment`
