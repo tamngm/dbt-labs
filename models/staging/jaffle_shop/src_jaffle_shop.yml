@@ -1,4 +1,7 @@
 version: 2
+# clarify the source databases
+# make data quality testing here too
+# setup freshness of the table
 
 sources:
   - name: jaffle_shop_datasrc
@@ -16,6 +19,11 @@ sources:
     tables:
       - name: customers # this will use the freshness defined above
         freshness: null
+        columns:
+          - name: id
+            tests:
+              - unique
+              - not_null
         
       - name: orders
         config:
@@ -23,18 +31,39 @@ sources:
             warn_after: {count: 6, period: hour}
             error_after: {count: 24, period: hour}
             # Apply a where clause in the freshness query
-            filter: timestamp(_etl_loaded_at) >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 2 DAY)
+            # filter: timestamp(_etl_loaded_at) >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 2 DAY)
+        columns:
+          - name: id
+            tests:
+              - not_null
+              - unique
+          - name: user_id
+            tests:
+              - not_null
+              - relationships: # check referential integrity of customer_id in orders tbl to customers tbl
+                  field: id 
+                  to: source('jaffle_shop_datasrc', 'customers')
+
   - name: stripe_datasrc
     database: dbt-tutorial
     schema: stripe
     tables:
       - name: payment
-        freshness: # also setup freshness for payment
+        freshness: # also setup freshness for payment 
           error_after:
             count: 2
             period: day
-          warn_after:
+          warn_after: 
             count: 1
             period: day
         loaded_at_field: _batched_at
+        columns:
+          - name: id
+            tests:
+              - not_null
+              - unique
+          - name: status
+            tests:
+              - accepted_values:
+                  values: ['success','fail']
         
