@@ -2,8 +2,10 @@ version: 2
 
 models:
   - name: stg_jaffle_shop__customers
+    description: one customer per row
     columns:
       - name: customer_id
+        description: customer identifier
         tests:
           - not_null
           - unique
@@ -11,12 +13,14 @@ models:
         tests:
           - not_null
   - name: stg_jaffle_shop__orders
+    description: one order per row
     columns:
       - name: order_id
         tests:
           - not_null
           - unique
       - name: status
+        description: '{{ doc("order_status")}}'
         tests:
           - accepted_values:
               values: ['placed', 'shipped', 'completed', 'returned', return_pending]
