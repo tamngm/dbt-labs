@@ -4,15 +4,6 @@ customers as (
     select * from {{ ref('stg_jaffle_shop__customers') }}
 ),
 
--- orders as (
---     select * from {{ ref('stg_jaffle_shop__orders')}}
--- ),
-
--- payments as (
---     select * from {{ ref('stg_stripe__payments') }}
---     where status != 'fail'
--- ),
-
 order_values_joined as (
     select * from {{ ref('int_orders')}}
 )
@@ -86,11 +77,8 @@ final as (
 
     from order_values_joined orders
 
-    join customers
-    on orders.customer_id = customers.customer_id
+    left join customer_order_history on orders.customer_id = customer_order_history.customer_id
 
-    join customer_order_history
-    on orders.customer_id = customer_order_history.customer_id
 
 )
 
