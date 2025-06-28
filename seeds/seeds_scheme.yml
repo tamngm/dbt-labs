@@ -1,0 +1,10 @@
+version: 2
+
+seeds:
+  - name: employee
+    description: employeer id per row
+    columns:
+      - name: employee_id
+        tests:
+          - not_null
+          - unique

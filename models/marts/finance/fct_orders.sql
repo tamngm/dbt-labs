@@ -1,3 +1,4 @@
+
 With 
 orders AS 
 (
@@ -12,12 +13,19 @@ order_payments as (
     from {{ ref("stg_stripe__payments")}}
     group by 1
 )
-
-select
+,
+final as 
+(
+    select
         orders.order_id,
         orders.customer_id,
         orders.order_date,
         coalesce (order_payments.amount, 0) as amount
 
-from orders
-left join order_payments using (order_id)
+    from orders
+    left join order_payments using (order_id)
+)
+
+select * 
+from final
+

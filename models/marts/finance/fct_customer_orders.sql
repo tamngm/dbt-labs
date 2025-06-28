@@ -8,7 +8,10 @@ order_values_joined as (
     select * from {{ ref('int_orders')}}
 )
 ,
-
+employee as (
+    select * from {{ ref('employee')}}
+)
+,
 customer_order_history as (
 
     select 
@@ -17,6 +20,7 @@ customer_order_history as (
         b.name as full_name,
         b.last_name as surname,
         b.first_name as givenname,
+        employee.employee_id is not null as is_employee,
 
         a.valid_order_date,
         min(valid_order_date) as first_order_date,
@@ -55,7 +59,7 @@ customer_order_history as (
 
     join customers b
     on a.customer_id = b.customer_id
-
+    join employee on employee.employee_id = b.customer_id
     group by all
 
 ),
@@ -67,8 +71,8 @@ final as (
 
         orders.order_id,
         orders.customer_id,
-        last_name as surname,
-        first_name as givenname,
+        customer_order_history.surname,
+        customer_order_history.givenname,
         first_order_date,
         order_count,
         total_lifetime_value,
